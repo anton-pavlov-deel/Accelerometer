@@ -1,22 +1,51 @@
-import { Template } from 'meteor/templating';
-import { ReactiveVar } from 'meteor/reactive-var';
-
-import './main.html';
-
-Template.hello.onCreated(function helloOnCreated() {
-  // counter starts at 0
-  this.counter = new ReactiveVar(0);
+import { Meteor } from 'meteor/meteor';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import d3 from 'd3';
+Meteor.startup(() => {
+  render(<App />, document.getElementById('root'));
 });
 
-Template.hello.helpers({
-  counter() {
-    return Template.instance().counter.get();
-  },
-});
+class App extends Component {
+  constructor(props) {
+    super(props);
 
-Template.hello.events({
-  'click button'(event, instance) {
-    // increment the counter when button is clicked
-    instance.counter.set(instance.counter.get() + 1);
-  },
-});
+    this.state = {
+      x: 0.0,
+      y: 0.0,
+      z: 0.0
+    }
+
+    if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', this.handleDeviceMotion.bind(this), false);
+    }
+  }
+
+  handleDeviceMotion(event) {
+    const { x, y, z } = event.accelerationIncludingGravity;
+    this.setState({
+      x,
+      y,
+      z
+    })
+
+    d3.select(".chart")
+      .selectAll("div")
+      .data([x, y, z])
+        .enter()
+        .append("div")
+        .style("width", function(d) { return d + "px"; })
+        .text(function(d) { return d; });
+  }
+
+  render() {
+    return (
+      <ul>
+        <li>{this.state.x}</li>
+        <li>{this.state.y}</li>
+        <li>{this.state.z}</li>
+        <div className='chart'></div>
+      </ul>
+    );
+  }
+}
