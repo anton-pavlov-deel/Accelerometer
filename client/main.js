@@ -1,7 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import d3 from 'd3';
+import Graph from '../imports/ui/Graph';
+import _ from 'lodash';
+
 Meteor.startup(() => {
   render(<App />, document.getElementById('root'));
 });
@@ -10,11 +12,27 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    this.minDataValue = 10;
+    this.maxDataBufferSize = 60;
+    this.timeInterval = 10000;
+    this.startTime = _.now();
+    this.actualTime = this.getTime();
+    this.actualData = {
+      X: [],
+      Y: [],
+      Z: []
+    };
+
+    this.options = {
+      yaxis: {max: this.minDataValue, min: -this.minDataValue},
+      xaxis: {max: (this.actualTime + this.timeInterval)/1000, min: (this.actualTime - this.timeInterval)/1000}
+    };
+
     this.state = {
-      x: 0.0,
-      y: 0.0,
-      z: 0.0
-    }
+      time: this.actualTime
+    };
+
+    //setInterval(this.handleDeviceMotion.bind(this, {accelerationIncludingGravity:{x:0,y:0,z:0}}), 100);
 
     if (window.DeviceMotionEvent) {
       window.addEventListener('devicemotion', this.handleDeviceMotion.bind(this), false);
@@ -22,30 +40,81 @@ class App extends Component {
   }
 
   handleDeviceMotion(event) {
-    const { x, y, z } = event.accelerationIncludingGravity;
-    this.setState({
-      x,
-      y,
-      z
-    })
+    let { x, y, z } = event.accelerationIncludingGravity;
 
-    d3.select(".chart")
-      .selectAll("div")
-      .data([x, y, z])
-        .enter()
-        .append("div")
-        .style("width", function(d) { return d + "px"; })
-        .text(function(d) { return d; });
+    x = x ? x : 0;
+    y = y ? y : 0;
+    z = z ? z : 0;
+
+    const data = {X: x, Y: y, Z: z};
+    this.actualTime = this.getTime();
+    this.addActualData(data);
+    this.configureOptions();
+    console.log(`Data:\nX:${JSON.stringify(this.actualData.X)}\nY:${this.actualData.Y}\nZ:${this.actualData.Z}`);
+    this.update();
+  }
+
+  addActualData(data) {
+    const time = this.actualTime;
+    this.actualData.X.push([time/1000, data.X]);
+    this.actualData.Y.push([time/1000, data.Y]);
+    this.actualData.Z.push([time/1000, data.Z]);
+    if (this.actualData.X.length > this.maxDataBufferSize) {
+      this.actualData.X.shift();
+      this.actualData.Y.shift();
+      this.actualData.Z.shift();
+    }
+  }
+
+  getTime() {
+    return (_.now() - this.startTime);
+  }
+
+  configureOptions() {
+    if (this.actualData.X.length) {
+      const maxX = Math.max(...this.actualData.X);
+      const maxY = Math.max(...this.actualData.Y);
+      const maxZ = Math.max(...this.actualData.Z);
+      const maxData = Math.max(maxX, maxY, maxZ, this.minDataValue);
+
+      this.options = {
+        yaxis: {max: this.minDataValue, min: -this.minDataValue},
+        xaxis: {max: (this.actualTime + this.timeInterval)/1000, min: (this.actualTime - this.timeInterval)/1000}
+      }
+    }
+  }
+
+  update() {
+    this.setState({
+      time: this.actualTime
+    })
   }
 
   render() {
     return (
-      <ul>
-        <li>{this.state.x}</li>
-        <li>{this.state.y}</li>
-        <li>{this.state.z}</li>
-        <div className='chart'></div>
-      </ul>
+      <div>
+        <Graph
+          height={250}
+          width={500}
+          actualData={this.actualData.X}
+          className='X'
+          options={this.options}
+        />
+        <Graph
+          height={250}
+          width={500}
+          actualData={this.actualData.Y}
+          className='Y'
+          options={this.options}
+        />
+        <Graph
+          height={250}
+          width={500}
+          actualData={this.actualData.Z}
+          className='Z'
+          options={this.options}
+        />
+      </div>
     );
   }
 }
