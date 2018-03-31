@@ -13,7 +13,7 @@ class App extends Component {
     super(props);
 
     this.minDataValue = 10;
-    this.maxDataBufferSize = 200;
+    this.maxDataBufferSize = 195;
     this.timeInterval = 10000;
     this.startTime = _.now();
     this.actualTime = this.getTime();
@@ -71,13 +71,13 @@ class App extends Component {
 
   configureOptions() {
     if (this.actualData.X.length) {
-      const maxX = Math.max(...this.actualData.X);
-      const maxY = Math.max(...this.actualData.Y);
-      const maxZ = Math.max(...this.actualData.Z);
+      const maxX = Math.max(...this.actualData.X.map(item => item[1]));
+      const maxY = Math.max(...this.actualData.Y.map(item => item[1]));
+      const maxZ = Math.max(...this.actualData.Z.map(item => item[1]));
       const maxData = Math.max(maxX, maxY, maxZ, this.minDataValue);
 
       this.options = {
-        yaxis: {max: this.minDataValue, min: -this.minDataValue},
+        yaxis: {max: maxData, min: -maxData},
         xaxis: {max: (this.actualTime + this.timeInterval)/1000, min: (this.actualTime - this.timeInterval)/1000}
       }
     }
