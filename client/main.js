@@ -13,7 +13,7 @@ class App extends Component {
     super(props);
 
     this.minDataValue = 10;
-    this.maxDataBufferSize = 60;
+    this.maxDataBufferSize = 200;
     this.timeInterval = 10000;
     this.startTime = _.now();
     this.actualTime = this.getTime();
@@ -32,7 +32,7 @@ class App extends Component {
       time: this.actualTime
     };
 
-    //setInterval(this.handleDeviceMotion.bind(this, {accelerationIncludingGravity:{x:0,y:0,z:0}}), 100);
+    //setInterval(this.handleDeviceMotion.bind(this, {accelerationIncludingGravity:{x:0,y:0,z:0}}), 50);
 
     if (window.DeviceMotionEvent) {
       window.addEventListener('devicemotion', this.handleDeviceMotion.bind(this), false);
@@ -50,7 +50,6 @@ class App extends Component {
     this.actualTime = this.getTime();
     this.addActualData(data);
     this.configureOptions();
-    console.log(`Data:\nX:${JSON.stringify(this.actualData.X)}\nY:${this.actualData.Y}\nZ:${this.actualData.Z}`);
     this.update();
   }
 
@@ -91,25 +90,28 @@ class App extends Component {
   }
 
   render() {
+    const graphWidth = $(window).width()*95/100;
+    const graphHeight = $(window).height()*30/100;
+
     return (
       <div>
         <Graph
-          height={250}
-          width={500}
+          height={graphHeight}
+          width={graphWidth}
           actualData={this.actualData.X}
           className='X'
           options={this.options}
         />
         <Graph
-          height={250}
-          width={500}
+          height={graphHeight}
+          width={graphWidth}
           actualData={this.actualData.Y}
           className='Y'
           options={this.options}
         />
         <Graph
-          height={250}
-          width={500}
+          height={graphHeight}
+          width={graphWidth}
           actualData={this.actualData.Z}
           className='Z'
           options={this.options}
