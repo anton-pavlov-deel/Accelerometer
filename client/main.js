@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import Graph from '../imports/ui/Graph';
 import _ from 'lodash';
+import Button from '../imports/ui/Button';
 
 Meteor.startup(() => {
   render(<App />, document.getElementById('root'));
@@ -114,6 +115,7 @@ class App extends Component {
           className='Z'
           options={this.options}
         />
+        <Button />
       </div>
     );
   }
