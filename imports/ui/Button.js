@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
-
+import classNames from 'classnames';
 
 export default class Button extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      enable: true
+      enable: props.enable
     };
   }
 
   render() {
     return (<button
-      className = 'button'
-      onClick={this.handleClick.bind(this)}
+      className={classNames(this.props.className, 'button')}
+      onClick={this.props.onClick}
       >
-        {this.state.enable ? 'enable' : 'disable'}
+        {this.props.value}
       </button>);
   }
 }
