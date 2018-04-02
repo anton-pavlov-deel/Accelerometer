@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import Graph from '../imports/ui/Graph';
+import MotionTypes from '../imports/api/MotionTypes';
 import _ from 'lodash';
 import Button from '../imports/ui/Button';
 
@@ -23,6 +24,14 @@ class App extends Component {
       Y: [],
       Z: []
     };
+    this.middleValue = [];
+
+    this.MotionTypes = new MotionTypes();
+    this.MotionTypes.setDefaultMotionTypes();
+    this.motionType = '';
+
+    this.currentMotionValue = 0.0;
+    this.currentMotionValueRange = 20;
 
     this.options = {
       yaxis: {max: this.minDataValue, min: -this.minDataValue},
@@ -50,19 +59,27 @@ class App extends Component {
     const data = {X: x, Y: y, Z: z};
     this.actualTime = this.getTime();
     this.addActualData(data);
+    this.calculateMotionValue();
+    this.setMotionType();
     this.configureOptions();
     this.update();
   }
 
   addActualData(data) {
-    const time = this.actualTime;
-    this.actualData.X.push([time/1000, data.X]);
-    this.actualData.Y.push([time/1000, data.Y]);
-    this.actualData.Z.push([time/1000, data.Z]);
+    const time = this.actualTime/1000;
+    const middleValue = (Math.abs(data.X) + Math.abs(data.Y) + Math.abs(data.Z))/3.0;
+
+    this.actualData.X.push([time, data.X]);
+    this.actualData.Y.push([time, data.Y]);
+    this.actualData.Z.push([time, data.Z]);
+    this.middleValue.push([time, middleValue]);
+
     if (this.actualData.X.length > this.maxDataBufferSize) {
       this.actualData.X.shift();
       this.actualData.Y.shift();
       this.actualData.Z.shift();
+
+      this.middleValue.shift();
     }
   }
 
@@ -88,6 +105,27 @@ class App extends Component {
     this.setState({
       time: this.actualTime
     })
+  }
+
+  calculateMotionValue() {
+    const toDrop = this.middleValue.length - this.currentMotionValueRange;
+    let motionCoefs = 0.0;
+    let motionValueCut;
+
+    if (toDrop >= 0) {
+      motionValueCut = _.drop(this.middleValue, toDrop);
+
+      for (let i=0; i<this.currentMotionValueRange-1; i++) {
+        const coef = Math.abs((motionValueCut[i+1][1] - motionValueCut[i][1])/(motionValueCut[i+1][0] - motionValueCut[i][0]));
+        motionCoefs += coef;
+      }
+
+      this.currentMotionValue = motionCoefs/this.currentMotionValueRange;
+    }
+  }
+
+  setMotionType() {
+    this.motionType = this.MotionTypes.getTypeByThreshold(this.currentMotionValue).name;
   }
 
   render() {
@@ -117,7 +155,16 @@ class App extends Component {
           className='Z'
           options={this.options}
         />
-        <Button />
+        {this.currentMotionValue}<br />
+        {this.motionType}
+        <Graph
+          height={graphHeight}
+          width={graphWidth}
+          actualData={this.middleValue}
+          className='MIDDLE'
+          options={this.options}
+        />
+	<Button />
       </div>
     );
   }
