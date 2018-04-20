@@ -1,4 +1,4 @@
-class MotionManager {
+export default class MotionManager {
   constructor({
     motionTypes,
     motionValueRange = 10,
@@ -16,7 +16,7 @@ class MotionManager {
       middleValue,
     } = record;
 
-    const toDrop = this.middleValue.length - this.motionValueRange;
+    const toDrop = middleValue.length - this.motionValueRange;
     let motionCoefs = 0.0;
     let motionValueCut;
 

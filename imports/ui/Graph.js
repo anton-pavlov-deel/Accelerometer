@@ -12,6 +12,30 @@ export default class Graph extends Component {
     this.updateGraph.bind(this)();
   }
 
+  configureOptions() {
+    const {
+      actualData,
+      options,
+    } = this.props;
+
+    if (actualData.X.length) {
+      const maxX = Math.max(...actualData.X.map(item => item[1]));
+      const maxY = Math.max(...actualData.Y.map(item => item[1]));
+      const maxZ = Math.max(...actualData.Z.map(item => item[1]));
+      const maxData = Math.max(maxX, maxY, maxZ, options.minDataValue);
+
+      return {
+        yaxis: {
+          max: maxData,
+          min: -maxData
+        },
+        xaxis: {
+          max: (options.time + options.timeInterval)/1000,
+          min: (options.time - options.timeInterval)/1000
+        },
+      };
+    }
+  }
 
   updateGraph() {
     const {
@@ -19,25 +43,26 @@ export default class Graph extends Component {
       actualData,
       recordData,
       width,
-      height
+      height,
+      dataFragment,
     } = this.props;
 
     const data = [];
 
     data.push({
       label: `Actual ${this.props.className}`,
-      data: actualData
+      data: actualData[dataFragment]
     });
 
     if (recordData) {
       data.push({
         label: `Record ${this.props.className}`,
-        data: recordData
+        data: recordData[dataFragment]
       });
     }
 
     this.canvas.style = `width: ${width}px; height: ${height}px;`;
-    $(`#graph${this.props.className}`).plot(data, options);
+    $(`#graph${this.props.className}`).plot(data, this.configureOptions(options));
   }
 
   render() {

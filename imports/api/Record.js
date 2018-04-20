@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
-class Record {
+export default class Record {
   constructor({
     maxRecordSize,
     slidable,
-  }) {
+  }, cb) {
     this.config = {
       maxRecordSize,
       slidable,
@@ -13,9 +13,14 @@ class Record {
     this.Y = [];
     this.Z = [];
     this.middleValue = [];
+
+    this.cb = cb;
   }
 
   start() {
+    this.X = [];
+    this.Y = [];
+    this.Z = [];
     this.startTime = _.now();
     this.listenToAccelerometer();
   }
@@ -45,6 +50,7 @@ class Record {
     const data = {X: x, Y: y, Z: z};
     this.actualTime = this.getTime();
     this.addData(data);
+    this.cb(this.actualTime);
   }
 
   addData(data) {
@@ -65,5 +71,14 @@ class Record {
     } else if (!this.config.slidable) {
       this.stop();
     }
+  }
+
+  getData() {
+    return {
+      X: this.X,
+      Y: this.Y,
+      Z: this.Z,
+      middleValue: this.middleValue,
+    };
   }
 }
