@@ -40,6 +40,7 @@ export default class App extends Component {
   }
 
   update(time) {
+    console.log(`${time}`);
     this.setState({
       time
     })
@@ -59,7 +60,7 @@ export default class App extends Component {
           actualData={this.actualData.getData()}
           dataFragment='X'
           className='X'
-          options={{...this.options, time: this.state.time}}
+          options={{...this.graphOptions, time: this.state.time}}
         />
         <Graph
           height={graphHeight}
@@ -67,7 +68,7 @@ export default class App extends Component {
           actualData={this.actualData.getData()}
           dataFragment='Y'
           className='Y'
-          options={{...this.options, time: this.state.time}}
+          options={{...this.graphOptions, time: this.state.time}}
         />
         <Graph
           height={graphHeight}
@@ -75,8 +76,9 @@ export default class App extends Component {
           actualData={this.actualData.getData()}
           dataFragment='Z'
           className='Z'
-          options={{...this.options, time: this.state.time}}
+          options={{...this.graphOptions, time: this.state.time}}
         />
+        {this.state.time}<br/>
         {currentMotionValue}<br />
         {motionType}
         <Graph
@@ -85,7 +87,7 @@ export default class App extends Component {
           actualData={this.actualData.getData()}
           dataFragment='middleValue'
           className='MIDDLE'
-          options={{...this.options, time: this.state.time}}
+          options={{...this.graphOptions, time: this.state.time}}
         />
 	<Button />
       </div>
