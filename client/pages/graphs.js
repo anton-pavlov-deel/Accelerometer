@@ -96,6 +96,7 @@ export default class GraphsApp extends Component {
 
     return (
       <div className='graphs__app'>
+        <h1 className='header'>Trackerometer</h1>
         <Graph
           height={graphHeight}
           width={graphWidth}
@@ -125,10 +126,10 @@ export default class GraphsApp extends Component {
         />
         <div className='motion_status__panel'>
           <div className='motion_type subpanel'>
-            Motion type: <span>{motionType}</span>
+            Motion type: <span className='status__label'>{motionType}</span>
           </div>
           <div className='motion_value subpanel'>
-            Motion value: <span>{motionValue}</span>
+            Motion value: <span className='status__label'>{motionValue}</span>
           </div>
         </div>
         <div className='button__panel'>
