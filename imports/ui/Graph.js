@@ -27,7 +27,8 @@ export default class Graph extends Component {
       return {
         yaxis: {
           max: maxData,
-          min: -maxData
+          min: -maxData,
+          tickSize: 2,
         },
         xaxis: {
           max: (options.time + options.timeInterval)/1000,
@@ -37,7 +38,13 @@ export default class Graph extends Component {
           lines: {
             show: true,
             lineWidth: 0.5,
-          }
+          },
+          shadowSize: 0,
+        },
+        colors: ['#000000', '#ff0000'],
+        grid: {
+          backgroundColor: '#effeef88',
+          borderWidth: 1,
         },
       };
     }
