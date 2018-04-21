@@ -15,6 +15,7 @@ export default class Record {
     this.middleValue = [];
 
     this.cb = cb;
+    this.handleDeviceMotion = this.handleDeviceMotion.bind(this);
   }
 
   start() {
@@ -27,7 +28,7 @@ export default class Record {
 
   stop() {
     this.endTime = _.now();
-    window.removeEventListener('devicemotion', this.handleDeviceMotion.bind(this), false);
+    window.removeEventListener('devicemotion', this.handleDeviceMotion);
   }
 
   getTime() {
@@ -36,7 +37,7 @@ export default class Record {
 
   listenToAccelerometer() {
     if (window.DeviceMotionEvent) {
-      window.addEventListener('devicemotion', this.handleDeviceMotion.bind(this), false);
+      window.addEventListener('devicemotion', this.handleDeviceMotion);
     }
   }
 

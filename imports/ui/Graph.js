@@ -33,6 +33,12 @@ export default class Graph extends Component {
           max: (options.time + options.timeInterval)/1000,
           min: (options.time - options.timeInterval)/1000
         },
+        series: {
+          lines: {
+            show: true,
+            lineWidth: 0.5,
+          }
+        },
       };
     }
   }

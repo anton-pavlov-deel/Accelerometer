@@ -2,8 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 
-import App from '../imports/components/App';
+import GraphsApp from './pages/graphs';
 
 Meteor.startup(() => {
-  render(<App />, document.getElementById('root'));
+  render(<GraphsApp />, document.getElementById('root'));
 });
