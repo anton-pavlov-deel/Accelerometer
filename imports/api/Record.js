@@ -2,23 +2,40 @@ import _ from 'lodash';
 
 export default class Record {
   constructor({
+    maxBufferSize,
     maxRecordSize,
-    slidable,
-  }, cb) {
+  }, updateCallback, crashCallback) {
+
     this.config = {
+      maxBufferSize,
       maxRecordSize,
-      slidable,
     };
+
+    this.recording = false;
+
+    this.record = {
+      X: [],
+      Y: [],
+      Z: [],
+    };
+
     this.X = [];
     this.Y = [];
     this.Z = [];
     this.middleValue = [];
 
-    this.cb = cb;
+    this.updateCallback = updateCallback;
+    this.crashCallback = crashCallback;
     this.handleDeviceMotion = this.handleDeviceMotion.bind(this);
   }
 
-  start() {
+  start(recording) {
+    if (recording) {
+      this.record.X = [];
+      this.record.Y = [];
+      this.record.Z = [];
+      this.recording = true;
+    }
     this.X = [];
     this.Y = [];
     this.Z = [];
@@ -28,6 +45,7 @@ export default class Record {
 
   stop() {
     this.endTime = _.now();
+    this.recording = false;
     window.removeEventListener('devicemotion', this.handleDeviceMotion);
   }
 
@@ -51,7 +69,7 @@ export default class Record {
     const data = {X: x, Y: y, Z: z};
     this.actualTime = this.getTime();
     this.addData(data);
-    this.cb(this.actualTime);
+    this.updateCallback(this.actualTime);
   }
 
   addData(data) {
@@ -63,14 +81,24 @@ export default class Record {
     this.Z.push([time, data.Z]);
     this.middleValue.push([time, middleValue]);
 
-    if (this.config.slidable && this.X.length > this.config.maxRecordSize) {
+    if (this.recording) {
+      this.record.X.push([time, data.X]);
+      this.record.Y.push([time, data.Y]);
+      this.record.Z.push([time, data.Z]);
+    }
+
+    if (this.X.length > this.config.maxBufferSize) {
       this.X.shift();
       this.Y.shift();
       this.Z.shift();
 
-      this.middleValue.shift();
-    } else if (!this.config.slidable) {
-      this.stop();
+      if (!this.recording) {
+        this.middleValue.shift();
+      }
+    }
+
+    if (this.recording && this.record.X.length > this.config.maxRecordSize) {
+      this.crashCallback();
     }
   }
 
@@ -81,5 +109,12 @@ export default class Record {
       Z: this.Z,
       middleValue: this.middleValue,
     };
+  }
+
+  getRecordedData() {
+    return {
+      ...this.record,
+      middleValue: this.middleValue,
+    }
   }
 }

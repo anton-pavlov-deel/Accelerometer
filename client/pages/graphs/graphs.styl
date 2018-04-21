@@ -6,10 +6,34 @@
   .graph
     width 100%
     height 20%
+  .motion_status__panel
+    background #ffffff44
+    border 1px solid #ffffff55
+    margin 10px 0px
+    display flex
+    font-family sans-serif
+    flex-direction column
+    padding 2px
+    .subpanel
+      text-transform uppercase
+      line-height 30px
+      background #6666ff55
+      border 1px solid #6666ff44
+      margin 5px 0px
+      padding 0px 9px
+      width 94%
+      height 30px
   .button__panel
     display flex
     flex-direction row
     justify-content space-between
-    .button
-      width 49%
+    .show_record__button
+      width 20%
       height 50px
+    .record__button
+      width 80%
+      background #08A92B
+      height 50px
+      &.--recording
+        transition 0.3s
+        background #BA1520

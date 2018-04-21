@@ -1,9 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { render } from 'react-dom';
+import _ from 'lodash';
+import classNames from 'classnames';
+
 import Graph from '../../imports/ui/Graph';
 import MotionTypes from '../../imports/api/MotionTypes';
-import _ from 'lodash';
 import Button from '../../imports/ui/Button';
 import Record from '../../imports/api/Record';
 import MotionManager from '../../imports/api/MotionManager';
@@ -13,17 +15,19 @@ export default class GraphsApp extends Component {
     super(props);
 
     const motionTypes = new MotionTypes();
-    const actualRecordConfig = {
-      maxRecordSize: 100,
-      slidable: true,
+
+    const actualDataConfig = {
+      maxBufferSize: 110,
+      maxRecordSize: 110,
     };
 
     const motionManagerConfig = {
       motionTypes,
-      motionValueRange: 10,
+      motionValueRange: 20,
     };
 
-    this.actualData = new Record(actualRecordConfig, this.update.bind(this));
+    this.actualData = new Record(actualDataConfig, this.update.bind(this), this.switchRecording.bind(this));
+    this.actualData.start();
 
     this.motionManager = new MotionManager(motionManagerConfig);
 
@@ -34,25 +38,48 @@ export default class GraphsApp extends Component {
 
     this.state = {
       time: 0,
-      tracking: false,
+      recording: false,
+      hasRecord: false,
     };
 
-    this.startTracking = this.startTracking.bind(this);
-    this.stopTracking = this.stopTracking.bind(this);
+    this.switchRecording = this.switchRecording.bind(this);
+    this.switchShowRecord = this.switchShowRecord.bind(this);
   }
 
-  startTracking() {
-    this.setState({
-      tracking: true,
-    });
-    this.actualData.start();
+  switchRecording() {
+    if (this.state.recording) {
+      this.actualData.stop();
+      this.recordedData = this.actualData.getRecordedData();
+      this.setState({
+        recording: false,
+        hasRecord: true,
+      });
+      this.actualData.start();
+    } else {
+      this.actualData.stop();
+      this.setState({
+        recording: true,
+        showRecord: false,
+        hasRecord: false,
+      });
+      this.actualData.start(true);
+    }
   }
 
-  stopTracking() {
-    this.setState({
-      tracking: false,
-    });
-    this.actualData.stop();
+  switchShowRecord() {
+    if (this.state.showRecord) {
+      this.actualData.stop();
+      this.setState({
+        showRecord: false,
+      });
+      this.actualData.start();
+    } else {
+      this.actualData.stop();
+      this.setState({
+        showRecord: true,
+      });
+      this.actualData.start();
+    }
   }
 
   update(time) {
@@ -64,6 +91,8 @@ export default class GraphsApp extends Component {
   render() {
     const graphWidth = $(window).width()*95/100;
     const graphHeight = $(window).height()*30/100;
+    const motionValue = this.motionManager.getMotionValue(this.actualData.getData());
+    const motionType = this.motionManager.getMotionType(this.actualData.getData());
 
     return (
       <div className='graphs__app'>
@@ -71,6 +100,7 @@ export default class GraphsApp extends Component {
           height={graphHeight}
           width={graphWidth}
           actualData={this.actualData.getData()}
+          recordData={this.state.showRecord ? this.recordedData : undefined}
           dataFragment='X'
           className='X'
           options={{...this.graphOptions, time: this.state.time}}
@@ -79,6 +109,7 @@ export default class GraphsApp extends Component {
           height={graphHeight}
           width={graphWidth}
           actualData={this.actualData.getData()}
+          recordData={this.state.showRecord ? this.recordedData : undefined}
           dataFragment='Y'
           className='Y'
           options={{...this.graphOptions, time: this.state.time}}
@@ -87,20 +118,39 @@ export default class GraphsApp extends Component {
           height={graphHeight}
           width={graphWidth}
           actualData={this.actualData.getData()}
+          recordData={this.state.showRecord ? this.recordedData : undefined}
           dataFragment='Z'
           className='Z'
           options={{...this.graphOptions, time: this.state.time}}
         />
+        <div className='motion_status__panel'>
+          <div className='motion_type subpanel'>
+            Motion type: <span>{motionType}</span>
+          </div>
+          <div className='motion_value subpanel'>
+            Motion value: <span>{motionValue}</span>
+          </div>
+        </div>
         <div className='button__panel'>
           <Button
-            label='Start'
-            onClick={this.startTracking}
-            disabled={this.state.tracking}
+            label={this.state.recording ? 'Stop' : 'Start'}
+            className={
+              classNames(
+                'record__button',
+                {'--recording': this.state.recording}
+              )
+            }
+            onClick={this.switchRecording}
           />
           <Button
-            label='Stop'
-            onClick={this.stopTracking}
-            disabled={!this.state.tracking}
+            label={this.state.showRecord ? 'Hide record' : 'Show record'}
+            disabled={!this.state.hasRecord}
+            className={
+              classNames(
+                'show_record__button',
+              )
+            }
+            onClick={this.switchShowRecord}
           />
         </div>
       </div>

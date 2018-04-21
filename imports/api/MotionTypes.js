@@ -10,12 +10,12 @@ export default class MotionTypes {
 
       {
         name: 'walking',
-        threshold: 4.0
+        threshold: 6.0
       },
 
       {
         name: 'running',
-        threshold: 10.0
+        threshold: 15.0
       }
     ]
   }
