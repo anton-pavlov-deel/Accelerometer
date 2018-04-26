@@ -96,7 +96,7 @@ export default class GraphsApp extends Component {
 
     return (
       <div className='graphs__app'>
-        <h1 className='header'>Trackerometer</h1>
+        <h1 className='header'>Tracker-o-meter</h1>
         <Graph
           height={graphHeight}
           width={graphWidth}
