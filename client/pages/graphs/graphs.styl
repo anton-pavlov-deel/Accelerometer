@@ -31,14 +31,17 @@
   .button__panel
     display flex
     flex-direction row
+    flex-wrap wrap
     justify-content space-between
+    .button
+      height 50px
+    .tracking__button
+      width 100%
     .show_record__button
       width 20%
-      height 50px
     .record__button
       width 80%
       background #08A92B
-      height 50px
       &.--recording
         transition 0.3s
         background #BA1520
