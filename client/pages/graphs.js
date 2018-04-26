@@ -94,7 +94,8 @@ export default class GraphsApp extends Component {
   }
 
   update(time) {
-    if (this.state.tracking) {
+    const delta = time - this.state.time;
+    if (this.state.tracking && delta >= 1000) {
       const type = this.motionManager.getMotionType(this.actualData.getData());
       this.track.tick(type);
     }
