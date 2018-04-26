@@ -10,6 +10,7 @@ import Button from '../../imports/ui/Button';
 import Record from '../../imports/api/Record';
 import MotionManager from '../../imports/api/MotionManager';
 import Track from '../../imports/api/Track.js';
+import TrackingPanel from '../../imports/components/TrackingPanel.jsx';
 
 export default class GraphsApp extends Component {
   constructor(props) {
@@ -109,6 +110,13 @@ export default class GraphsApp extends Component {
     const graphHeight = $(window).height()*30/100;
     const motionValue = this.motionManager.getMotionValue(this.actualData.getData());
     const motionType = this.motionManager.getMotionType(this.actualData.getData());
+    const trackInfo = this.track.getTrackInfo();
+
+    const trackingData = _.keys(trackInfo).map((type) => ({
+      type,
+      label: type[0].toUpperCase() + type.slice(1),
+      time: trackInfo[type],
+    }));
 
     return (
       <div className='graphs__app'>
@@ -148,6 +156,9 @@ export default class GraphsApp extends Component {
             Motion value: <span className='status__label'>{motionValue}</span>
           </div>
         </div>
+        <TrackingPanel
+          data={trackingData}
+        />
         <div className='button__panel'>
           <Button
             label={this.state.recording ? 'Stop' : 'Start'}
