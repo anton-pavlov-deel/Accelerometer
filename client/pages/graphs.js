@@ -48,6 +48,7 @@ export default class GraphsApp extends Component {
 
     this.switchRecording = this.switchRecording.bind(this);
     this.switchShowRecord = this.switchShowRecord.bind(this);
+    this.switchTracking = this.switchTracking.bind(this);
   }
 
   switchTracking() {
@@ -174,6 +175,7 @@ export default class GraphsApp extends Component {
                 'tracking__button'
               )
             }
+            onClick={this.switchTracking}
           />
         </div>
       </div>
