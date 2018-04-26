@@ -9,6 +9,7 @@ import MotionTypes from '../../imports/api/MotionTypes';
 import Button from '../../imports/ui/Button';
 import Record from '../../imports/api/Record';
 import MotionManager from '../../imports/api/MotionManager';
+import Track from '../../imports/api/Track.js';
 
 export default class GraphsApp extends Component {
   constructor(props) {
@@ -31,6 +32,8 @@ export default class GraphsApp extends Component {
 
     this.motionManager = new MotionManager(motionManagerConfig);
 
+    this.track = new Track(['calm', 'walking', 'running']);
+
     this.graphOptions = {
       minDataValue: 10,
       timeInterval: 10000,
@@ -38,12 +41,19 @@ export default class GraphsApp extends Component {
 
     this.state = {
       time: 0,
+      tracking: false,
       recording: false,
       hasRecord: false,
     };
 
     this.switchRecording = this.switchRecording.bind(this);
     this.switchShowRecord = this.switchShowRecord.bind(this);
+  }
+
+  switchTracking() {
+    this.setState({
+      tracking: !this.state.tracking,
+    });
   }
 
   switchRecording() {
@@ -83,6 +93,10 @@ export default class GraphsApp extends Component {
   }
 
   update(time) {
+    if (this.state.tracking) {
+      const type = this.motionManager.getMotionType(this.actualData.getData());
+      this.track.tick(type);
+    }
     this.setState({
       time
     })
@@ -152,6 +166,14 @@ export default class GraphsApp extends Component {
               )
             }
             onClick={this.switchShowRecord}
+          />
+          <Button
+            label={this.state.tracking ? 'Stop tracking' : 'Start tracking'}
+            className={
+              classNames(
+                'tracking__button'
+              )
+            }
           />
         </div>
       </div>
