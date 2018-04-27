@@ -6,6 +6,7 @@ class TrackingPanel extends Component {
   render () {
     const trackingPanelItems = this.props.data.map((item) => (
       <div
+        id={item.type}
         className={
           classNames(
             item.type,
@@ -26,7 +27,7 @@ class TrackingPanel extends Component {
           )
         }
       >
-
+        {trackingPanelItems}
       </div>
     );
   }
