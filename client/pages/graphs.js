@@ -42,6 +42,7 @@ export default class GraphsApp extends Component {
 
     this.state = {
       time: 0,
+      lastTrackingTime: 0,
       tracking: false,
       recording: false,
       hasRecord: false,
@@ -63,6 +64,7 @@ export default class GraphsApp extends Component {
       this.actualData.stop();
       this.recordedData = this.actualData.getRecordedData();
       this.setState({
+        lastTrackingTime: 0,
         recording: false,
         hasRecord: true,
       });
@@ -70,6 +72,7 @@ export default class GraphsApp extends Component {
     } else {
       this.actualData.stop();
       this.setState({
+        lastTrackingTime: 0,
         recording: true,
         showRecord: false,
         hasRecord: false,
@@ -82,12 +85,14 @@ export default class GraphsApp extends Component {
     if (this.state.showRecord) {
       this.actualData.stop();
       this.setState({
+        lastTrackingTime: 0,
         showRecord: false,
       });
       this.actualData.start();
     } else {
       this.actualData.stop();
       this.setState({
+        lastTrackingTime: 0,
         showRecord: true,
       });
       this.actualData.start();
@@ -95,10 +100,13 @@ export default class GraphsApp extends Component {
   }
 
   update(time) {
-    const delta = time - this.state.time;
+    const delta = time - this.state.lastTrackingTime;
     if (this.state.tracking && delta >= 1000) {
       const type = this.motionManager.getMotionType(this.actualData.getData());
       this.track.tick(type);
+      this.setState({
+        lastTrackingTime: time,
+      });
     }
     this.setState({
       time
@@ -118,6 +126,8 @@ export default class GraphsApp extends Component {
       time: trackInfo[type],
       active: type === motionType,
     }));
+
+    console.log(openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024));
 
     return (
       <div className='graphs__app'>
@@ -149,14 +159,6 @@ export default class GraphsApp extends Component {
           className='Z'
           options={{...this.graphOptions, time: this.state.time}}
         />
-        <div className='motion_status__panel'>
-          <div className='motion_type subpanel'>
-            Motion type: <span className='status__label'>{motionType}</span>
-          </div>
-          <div className='motion_value subpanel'>
-            Motion value: <span className='status__label'>{motionValue}</span>
-          </div>
-        </div>
         <TrackingPanel
           data={trackingData}
         />

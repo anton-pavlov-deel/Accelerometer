@@ -43,7 +43,6 @@ export default class Graph extends Component {
         },
         colors: ['#000000', '#ff0000'],
         grid: {
-          backgroundColor: '#effeef88',
           borderWidth: 1,
         },
       };

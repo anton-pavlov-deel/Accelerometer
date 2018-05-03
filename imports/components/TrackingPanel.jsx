@@ -6,29 +6,22 @@ import './TrackingPanel.styl';
 
 class TrackingPanel extends Component {
   getTimeStringBySeconds (sec) {
-    let days=0, hours=0, minutes=0, seconds=0;
-    let result;
+    let seconds, minutes, hours;
+    const result = [];
 
-    if (sec === 0) {
-      return '0 s.';
-    }
-    if (sec >= 60) {
-      seconds = sec%60;
-      minutes = Math.round(sec/60);
-      result = `${seconds} s.`;
-    }
-    if (minutes >= 60) {
-      hours = Math.round(minutes/60);
-      minutes = minutes%60;
-      result = `${minutes} m. ` + result;
-    }
-    if (hours >= 24) {
-      days = Math.round(hours/24);
-      hours = hours%24;
-      result = `${hours} h. ` + hours;
-    }
+    seconds = sec%60;
+    minutes = Math.floor(sec/60)%60;
+    hours = Math.floor(sec/3600);
 
-    return result;
+    if (hours) {
+      result.push(`${hours} h.`);
+    }
+    if (minutes) {
+      result.push(`${minutes} m.`);
+    }
+    result.push(`${seconds} s.`);
+
+    return result.join(' ');
   }
 
   render () {
@@ -43,7 +36,7 @@ class TrackingPanel extends Component {
           )
         }
       >
-        {item.label}: {item.time} s.
+        {item.label}: <span className="time">{this.getTimeStringBySeconds(item.time)}</span>
       </div>
     ));
 
