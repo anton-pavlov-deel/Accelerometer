@@ -46,7 +46,7 @@ export default class Record {
   stop() {
     this.endTime = _.now();
     this.recording = false;
-    window.removeEventListener('devicemotion', this.handleDeviceMotion);
+    navigator.accelerometer.clearWatch(this.watchID);
   }
 
   getTime() {
@@ -54,13 +54,11 @@ export default class Record {
   }
 
   listenToAccelerometer() {
-    if (window.DeviceMotionEvent) {
-      window.addEventListener('devicemotion', this.handleDeviceMotion);
-    }
+    this.watchID = navigator.accelerometer.watchAcceleration(this.handleDeviceMotion, null, { frequency: 1 });
   }
 
   handleDeviceMotion(event) {
-    let { x, y, z } = event.accelerationIncludingGravity;
+    let { x, y, z } = event;
 
     x = x ? x : 0;
     y = y ? y : 0;
