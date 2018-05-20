@@ -1,0 +1,30 @@
+.notification__container
+  position absolute
+  width 100%
+  display flex
+  padding 15px 0px 0px 0px
+  align-items center
+  align-content center
+  justify-content center
+  .notification__block
+    padding 5px
+    transition 0s
+    border-radius 5px
+    &.-invisible
+      border 1px solid #00000000
+      background #00000000
+      color #00000000
+    &.-visible
+      transition 0.5s
+    &.-success
+      border 1px solid #338833
+      background #33883333
+      color #338833
+    &.-error
+      border 1px solid #992222
+      background #99222222
+      color #992222
+    &.-alert
+      border 1px solid #888833
+      background #88883333
+      color #888833

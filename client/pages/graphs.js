@@ -2,8 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import _ from 'lodash';
+import moment from 'moment';
 import classNames from 'classnames';
+import { FlowRouter } from 'meteor/kadira:flow-router';
 
+import Database from '../../imports/api/Database';
 import Graph from '../../imports/ui/Graph';
 import MotionTypes from '../../imports/api/MotionTypes';
 import Button from '../../imports/ui/Button';
@@ -11,6 +14,9 @@ import Record from '../../imports/api/Record';
 import MotionManager from '../../imports/api/MotionManager';
 import Track from '../../imports/api/Track.js';
 import TrackingPanel from '../../imports/components/TrackingPanel.jsx';
+import UserPanel from '../../imports/components/UserPanel.js';
+
+import '../../imports/collections/tracks.js';
 
 export default class GraphsApp extends Component {
   constructor(props) {
@@ -28,12 +34,15 @@ export default class GraphsApp extends Component {
       motionValueRange: 20,
     };
 
+    this.db = Database('track');
+
     this.actualData = new Record(actualDataConfig, this.update.bind(this), this.switchRecording.bind(this));
     this.actualData.start();
 
     this.motionManager = new MotionManager(motionManagerConfig);
 
     this.track = new Track(['calm', 'walking', 'running']);
+    this.fetchTrackInfo();
 
     this.graphOptions = {
       minDataValue: 10,
@@ -48,9 +57,44 @@ export default class GraphsApp extends Component {
       hasRecord: false,
     };
 
+    this.updateCounter = 0;
+
     this.switchRecording = this.switchRecording.bind(this);
     this.switchShowRecord = this.switchShowRecord.bind(this);
     this.switchTracking = this.switchTracking.bind(this);
+
+    this.notify = props.notify;
+  }
+
+  logOut() {
+    Meteor.userName = '';
+    Meteor.userId = 0;
+    FlowRouter.go('/auth');
+  }
+
+  fetchTrackInfo() {
+    const username = Meteor.userName;
+    const date = new Date();
+
+    Meteor.call('tracks.fetch', { username, date }, (err, result) => {
+      if (err) {
+        //this.notify('alert', err.reason);
+      } else {
+        this.track.setTrackInfo(result);
+        //this.notify('success', 'Track info was fetched for today');
+      }
+    });
+  }
+
+  updateTrackInfo() {
+    const username = Meteor.userName;
+    const trackInfo = this.track.getTrackInfo();
+
+    Meteor.call('tracks.update', { username, trackInfo }, (err, result) => {
+      if (err) {
+        this.notify('error', err.reason);
+      }
+    });
   }
 
   switchTracking() {
@@ -101,9 +145,17 @@ export default class GraphsApp extends Component {
 
   update(time) {
     const delta = time - this.state.lastTrackingTime;
+
     if (this.state.tracking && delta >= 1000) {
       const type = this.motionManager.getMotionType(this.actualData.getData());
+
       this.track.tick(type);
+      this.updateCounter += 1;
+      if (this.updateCounter === 5) {
+        this.updateCounter = 0;
+        this.updateTrackInfo();
+      }
+
       this.setState({
         lastTrackingTime: time,
       });
@@ -119,6 +171,7 @@ export default class GraphsApp extends Component {
     const motionValue = this.motionManager.getMotionValue(this.actualData.getData());
     const motionType = this.motionManager.getMotionType(this.actualData.getData());
     const trackInfo = this.track.getTrackInfo();
+    const { userName, userId } = Meteor;
 
     const trackingData = _.keys(trackInfo).map((type) => ({
       type,
@@ -127,11 +180,14 @@ export default class GraphsApp extends Component {
       active: type === motionType,
     }));
 
-    console.log(openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024));
-
     return (
       <div className='graphs__app'>
         <h1 className='header'>Tracker-o-meter</h1>
+        <UserPanel
+          userName={userName}
+          userId={userId}
+          onLogOut={this.logOut}
+        />
         <Graph
           height={graphHeight}
           width={graphWidth}

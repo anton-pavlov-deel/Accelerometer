@@ -26,7 +26,13 @@ export default class Record {
 
     this.updateCallback = updateCallback;
     this.crashCallback = crashCallback;
+
+    this.stopBG = this.stopBG.bind(this);
     this.handleDeviceMotion = this.handleDeviceMotion.bind(this);
+    this.listenToAccelerometerBG = this.listenToAccelerometerBG.bind(this);
+
+    cordova.plugins.backgroundMode.on('activate', this.listenToAccelerometerBG);
+    cordova.plugins.backgroundMode.on('deactivate', this.stopBG);
   }
 
   start(recording) {
@@ -49,12 +55,20 @@ export default class Record {
     navigator.accelerometer.clearWatch(this.watchID);
   }
 
+  stopBG() {
+    clearInterval(this.watchIDBG);
+  }
+
   getTime() {
     return (_.now() - this.startTime);
   }
 
   listenToAccelerometer() {
     this.watchID = navigator.accelerometer.watchAcceleration(this.handleDeviceMotion, null, { frequency: 1 });
+  }
+
+  listenToAccelerometerBG() {
+    this.watchIDBG = setInterval(navigator.accelerometer.getCurrentAcceleration.bind(null, this.handleDeviceMotion), 10);
   }
 
   handleDeviceMotion(event) {

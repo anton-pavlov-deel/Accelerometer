@@ -13,6 +13,12 @@ export default class Track {
     this.types[type] += 1;
   }
 
+  setTrackInfo(trackInfo) {
+    _.forEach(trackInfo, (value, type) => {
+      this.types[type] += value;
+    });
+  }
+
   getTrackInfo(type) {
     if (type) {
       return this.types[type];

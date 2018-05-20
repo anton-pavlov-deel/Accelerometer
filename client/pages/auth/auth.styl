@@ -1,0 +1,69 @@
+// Flex config
+.authApp
+  display flex
+  flex 1
+  .form
+    flex 1
+    display flex
+    flex-direction column
+    .app__header
+      flex 2
+    .form__field
+      flex 2
+      display flex
+      flex-direction column
+    .status__label
+      flex 1
+    .form__button-area
+      flex 2
+      display flex
+      flex-direction row
+    .button
+      flex 1
+
+// Other styling
+
+.authApp
+  height 100%
+  width 100%
+  .form
+    width 100%
+    height 100%
+    color #999
+    background #eee
+    .app__header
+      color #444
+      text-align center
+      line-height 150px
+    .form__field
+      .form__label
+        font-size 20px
+      .form__input
+        font-size 15px
+        padding 0px 5px
+        border none
+        height 45px
+        background #f0f0f0
+        border-bottom 1px solid #cccccc
+        box-shadow 0px 5px 10px #aaa
+        transition 0.3s
+        &:focus
+          transition 0.3s
+          outline none
+          box-shadow 0px 5px 10px -20px #aaa
+    .status__label
+      margin 0px 45px 10px 45px
+      text-align center
+      line-height 60px
+      border 1px solid #ff5555ff
+      border-radius 30px
+      background #ff555555
+      color #cc2222ff
+      &.-logged
+        color #22cc22ff
+        border 1px solid #55ff55ff
+        background #55ff5555
+    .form__button-area
+      .button
+        background #285A64
+        margin 5px
