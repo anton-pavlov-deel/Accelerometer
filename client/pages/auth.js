@@ -38,6 +38,13 @@ export default class AuthApp extends Component {
     const { username, password } = this.state;
 
     if (name === 'login') {
+      if (username === 'guest') {
+        Meteor.userName = 'guest';
+        Meteor.userId = -1;
+        this.notify('success', `Successfully logged in as guest`);
+
+        FlowRouter.go('graphs');
+      }
       this.notify('alert', 'Loading...', 15000);
       Meteor.call('users.auth', { username, password }, (error, userData) => {
         if (error) {

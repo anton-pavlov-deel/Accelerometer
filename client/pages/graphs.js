@@ -42,7 +42,9 @@ export default class GraphsApp extends Component {
     this.motionManager = new MotionManager(motionManagerConfig);
 
     this.track = new Track(['calm', 'walking', 'running']);
-    this.fetchTrackInfo();
+    if (Meteor.userId !== -1) {
+      this.fetchTrackInfo();
+    }
 
     this.graphOptions = {
       minDataValue: 10,
@@ -151,7 +153,7 @@ export default class GraphsApp extends Component {
 
       this.track.tick(type);
       this.updateCounter += 1;
-      if (this.updateCounter === 5) {
+      if (this.updateCounter === 5 && Meteor.userId !== -1) {
         this.updateCounter = 0;
         this.updateTrackInfo();
       }
