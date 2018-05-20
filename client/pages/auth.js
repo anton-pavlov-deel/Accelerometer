@@ -43,26 +43,27 @@ export default class AuthApp extends Component {
         Meteor.userId = -1;
         this.notify('success', `Successfully logged in as guest`);
 
-        FlowRouter.go('graphs');
+        FlowRouter.go('/graphs');
+      } else {
+        this.notify('alert', 'Loading...', 15000);
+        Meteor.call('users.auth', { username, password }, (error, userData) => {
+          if (error) {
+            this.notify('error', error.reason);
+          } else {
+            this.setState({
+              loggedIn: true,
+              currentUser: userData.username,
+              currentUserId: userData._id,
+            });
+
+            Meteor.userName = userData.username;
+            Meteor.userId = userData._id;
+            this.notify('success', `${userData.username} successfully logged in`);
+
+            FlowRouter.go('/graphs');
+          }
+        });
       }
-      this.notify('alert', 'Loading...', 15000);
-      Meteor.call('users.auth', { username, password }, (error, userData) => {
-        if (error) {
-          this.notify('error', error.reason);
-        } else {
-          this.setState({
-            loggedIn: true,
-            currentUser: userData.username,
-            currentUserId: userData._id,
-          });
-
-          Meteor.userName = userData.username;
-          Meteor.userId = userData._id;
-          this.notify('success', `${userData.username} successfully logged in`);
-
-          FlowRouter.go('/graphs');
-        }
-      });
     } else if (name === 'register') {
       if (username && password) {
         this.notify('alert', 'Loading...', 15000);

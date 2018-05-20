@@ -37,7 +37,9 @@ export default class GraphsApp extends Component {
     this.db = Database('track');
 
     this.actualData = new Record(actualDataConfig, this.update.bind(this), this.switchRecording.bind(this));
-    this.actualData.start();
+    setTimeout(() => {
+      this.actualData.start();
+    }, 100);
 
     this.motionManager = new MotionManager(motionManagerConfig);
 
